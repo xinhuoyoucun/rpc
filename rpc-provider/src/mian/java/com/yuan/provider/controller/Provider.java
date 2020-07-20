@@ -1,6 +1,6 @@
 package com.yuan.provider.controller;
 
-import com.yuan.request.RpcRequest;
+import com.yuan.commons.request.RpcRequest;
 import com.yuan.provider.service.SayService;
 import com.yuan.provider.service.impl.SayServiceImpl;
 

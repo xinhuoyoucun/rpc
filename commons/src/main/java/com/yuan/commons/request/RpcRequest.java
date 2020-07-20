@@ -1,4 +1,4 @@
-package com.yuan.request;
+package com.yuan.commons.request;
 
 import lombok.Data;
 

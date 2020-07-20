@@ -1,7 +1,7 @@
 package com.yuan.consumer.service.impl;
 
+import com.yuan.commons.request.RpcRequest;
 import com.yuan.consumer.service.SayService;
-import com.yuan.request.RpcRequest;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
