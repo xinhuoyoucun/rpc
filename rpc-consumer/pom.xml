@@ -17,10 +17,27 @@
 
     <!-- 定义本项目的依赖关系 -->
     <dependencies>
+        <!-- Spring Boot Begin -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- Spring Boot End -->
+
         <dependency>
             <groupId>com.yuan</groupId>
             <artifactId>commons</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
     </dependencies>
+
 </project>

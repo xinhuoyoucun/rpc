@@ -1,5 +1,7 @@
 package com.yuan.consumer.service;
 
+import com.yuan.commons.handler.RestApi;
+
 import java.io.IOException;
 
 /**
@@ -8,6 +10,7 @@ import java.io.IOException;
  * @Description: TODO
  * @Version 1.0
  */
+@RestApi
 public interface SayService {
     String sayHello(String name) throws IOException, ClassNotFoundException;
 }

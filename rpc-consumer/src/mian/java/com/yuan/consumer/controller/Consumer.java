@@ -3,8 +3,13 @@ package com.yuan.consumer.controller;
 
 import com.yuan.commons.proxy.ProxyFactory;
 import com.yuan.consumer.service.SayService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * @author by yuanlai
@@ -12,14 +17,19 @@ import java.io.IOException;
  * @Description: TODO
  * @Version 1.0
  */
+
+@Slf4j
+@RestController
 public class Consumer {
-    public static void main(String[] args) throws IOException, ClassNotFoundException {
-        // 创建代理对象
+
+    @Autowired
+    private SayService sayService;
+
+    @RequestMapping("/say")
+    public String say() throws IOException, ClassNotFoundException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         SayService serviceProxy = (SayService) new ProxyFactory(SayService.class).getProxyInstance();
-
-        // 调用代理方法
         String result = serviceProxy.sayHello("yuan");
-
-        System.out.println(result);
+        return result;
     }
+
 }
