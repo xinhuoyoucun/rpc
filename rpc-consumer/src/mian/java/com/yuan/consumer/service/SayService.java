@@ -1,6 +1,6 @@
 package com.yuan.consumer.service;
 
-import com.yuan.commons.handler.RestApi;
+import com.yuan.commons.handle.RestApi;
 
 import java.io.IOException;
 

@@ -6,6 +6,9 @@
 
 2、集成Spring
 在实现了代理对象通用化之后，下一步就可以考虑集成Spring的IOC功能了，通过Spring来创建代理对象，这一点就需要对Spring的bean初始化有一定掌握了。
+step1：扫描所有需要代理的类类型（可以通过Reflections包实现）
+step2：遍历并创建代理类的BeanDefinition
+step3：通过 defaultListableBeanFactory.registerBeanDefinition 将代理类的BeanDefinition注册到Spring容器中
 
 3、长连接or短连接
 总不能每次要调用RPC接口时都去开启一个Socket建立连接吧？是不是可以保持若干个长连接，然后每次有rpc请求时，把请求放到任务队列中，然后由线程池去消费执行？只是一个思路，后续可以参考一下Dubbo是如何实现的。
