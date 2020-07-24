@@ -64,7 +64,7 @@ public class DynamicRegisterBeanUtil implements BeanFactoryPostProcessor {
      */
     private void createProxyClass(Class clazz)  {
         // 一、获取代理类对象的处理类
-        MyInvocationHandler handler = getMyInvocationHandler(clazz);
+        MyInvocationHandler handler = new MyInvocationHandler(clazz);
 
         // 二、获取代理类的BeanDefinition（重点）
         BeanDefinition proxyBeanDefinition = getProxyBeanDefinition(clazz, handler);
@@ -74,93 +74,6 @@ public class DynamicRegisterBeanUtil implements BeanFactoryPostProcessor {
     }
 
 
-    private MyInvocationHandler getMyInvocationHandler(Class clazz) {
-        return new MyInvocationHandler(clazz);
-    }
-
-    /**
-     * 创建代理时所需的处理类
-     * @return
-     */
-    private class MyInvocationHandler implements InvocationHandler {
-
-        private Class target;
-
-        public MyInvocationHandler(Class target) {
-            this.target = target;
-        }
-
-        @Override
-        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-            List<String> addressList = lookupProviders("say.hello");
-            String address = chooseTarget(addressList);
-            String ip = address.split(",")[0];
-            int port = Integer.parseInt(address.split(",")[1]);
-            Socket socket = null;
-            ObjectOutputStream objectOutputStream = null;
-            ObjectInputStream objectInputStream = null;
-            try {
-                socket = new Socket(ip, port);
-
-                objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
-
-                // 将请求发给服务提供方
-                objectOutputStream.writeUTF(target.getSimpleName());
-                objectOutputStream.writeUTF(method.getName());
-                objectOutputStream.writeObject(method.getParameterTypes());
-                objectOutputStream.writeObject(args);
-
-                // 将响应体反序列化
-                objectInputStream = new ObjectInputStream(socket.getInputStream());
-                Object response = objectInputStream.readObject();
-
-
-                if (response instanceof String) {
-                    return response;
-                } else {
-                    throw new InternalError();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                if (objectOutputStream != null) {
-                    objectOutputStream.close();
-                }
-                if (objectInputStream != null) {
-                    objectInputStream.close();
-                }
-                if (socket != null) {
-                    socket.close();
-                }
-            }
-            return null;
-        }
-
-        /**
-         * 选择服务地址
-         *
-         * @param providers
-         * @return
-         */
-        private String chooseTarget(List<String> providers) {
-            if (null == providers || providers.size() == 0) {
-                throw new IllegalArgumentException();
-            }
-            return providers.get(0);
-        }
-
-        /**
-         * 发现服务
-         *
-         * @param name
-         * @return
-         */
-        private List<String> lookupProviders(String name) {
-            List<String> strings = new ArrayList();
-            strings.add("127.0.0.1,13000");
-            return strings;
-        }
-    }
 
 
     /**
@@ -171,39 +84,19 @@ public class DynamicRegisterBeanUtil implements BeanFactoryPostProcessor {
      */
     private BeanDefinition getProxyBeanDefinition(Class clazz, MyInvocationHandler handler) {
         // 获取JDK代理类的类型
-        Class<?> jdkDynamicProxyClass = getJDKDynamicProxyClass(clazz);
+        Class<?> jdkDynamicProxyClass = Proxy.getProxyClass(clazz.getClassLoader(), clazz);
 
-        // 获取JDK代理类的Bean定义
-        BeanDefinition jdkBeanDefinition = getJDKBeanDefinition(jdkDynamicProxyClass, handler);
-
-        return jdkBeanDefinition;
-    }
-
-    /**
-     * 获取JDK代理类的BeanDefinition：根据JDK代理类的类型和处理类实例创建JDK代理类的Bean定义
-     * @param jdkDynamicProxyClass
-     * @param handler
-     */
-    private BeanDefinition getJDKBeanDefinition(Class<?> jdkDynamicProxyClass, MyInvocationHandler handler) {
-
+        // 获取JDK代理类的BeanDefinition：根据JDK代理类的类型和处理类实例创建JDK代理类的Bean定义
         BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(jdkDynamicProxyClass);
 
-        AbstractBeanDefinition beanDefinition = builder
-                .addConstructorArgValue(handler)
-                .getBeanDefinition();
+        AbstractBeanDefinition beanDefinition = builder.addConstructorArgValue(handler).getBeanDefinition();
 
         beanDefinition.setAutowireCandidate(true);
+
+        // 返回JDK代理类的Bean定义
         return beanDefinition;
     }
 
-    /**
-     * 获取JDK代理类的类类型
-     * @param clazz
-     */
-    private Class<?> getJDKDynamicProxyClass(Class clazz) {
-        Class<?> jdkProxyClass =  Proxy.getProxyClass(clazz.getClassLoader(), clazz);
-        return jdkProxyClass;
-    }
 
 
     /**
